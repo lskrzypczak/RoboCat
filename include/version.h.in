@@ -1,0 +1,8 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+// the configured options and settings for PureOS
+#define ROBOCAT_VERSION_MAJOR @ROBOCAT_VERSION_MAJOR@
+#define ROBOCAT_VERSION_MINOR @ROBOCAT_VERSION_MINOR@
+
+#endif
