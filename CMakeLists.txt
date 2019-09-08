@@ -57,6 +57,9 @@ target_compile_options(${PROJECT_NAME} PUBLIC -fdata-sections)
 target_compile_options(${PROJECT_NAME} PUBLIC -MMD )
 target_compile_options(${PROJECT_NAME} PUBLIC -MP)
 target_compile_options(${PROJECT_NAME} PUBLIC -fpermissive)
+target_compile_options(${PROJECT_NAME} PUBLIC -Og)
+target_compile_options(${PROJECT_NAME} PUBLIC -g)
+
 
 # Warnings related flags
 target_compile_options(${PROJECT_NAME} PUBLIC -Wall)
