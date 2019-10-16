@@ -53,7 +53,7 @@ gboolean Leg::timeout(gpointer data)
 	double x, y, z;
 
 	//Set destination frame
-	if (forth) {
+	if ((forth) && (forthMove)) {
 		float rad = ((float)iterations) * step * M_PI / 180;
 		x = startCartPos.p.x() + ((float)iterations / 100.0);
 		y = startCartPos.p.y() - (0.25 * sin(rad));
@@ -84,6 +84,10 @@ gboolean Leg::timeout(gpointer data)
 		iterations = 0;
 //		jointpositions(0) = -M_PI / 9.0;
 //		jointpositions(1) = M_PI / 3.0;
+		if ((forth) && (iterations > 25) && (iterations < 75))
+			forthMove = true;
+		else
+			forthMove = false;
 		forth = !forth;
 	}
 

@@ -48,6 +48,7 @@ private:
 	ChainIkSolverVel_wdls *viksolver;
 	int iterations = 0;
 	bool forth = true;
+	bool forthMove = false;
 
 public:
 	Leg();
