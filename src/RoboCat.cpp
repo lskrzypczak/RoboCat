@@ -15,6 +15,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <signal.h>
 #include <kdl/chain.hpp>
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
@@ -28,8 +29,6 @@
 #include <unistd.h>
 #include <eigen3/Eigen/Core>
 
-#include <cairo.h>
-#include <gtk/gtk.h>
 #include "Leg.h"
 
 using namespace std;
@@ -38,23 +37,17 @@ using namespace KDL;
 #define _STRINGIFY(s) #s
 #define STRINGIFY(s) _STRINGIFY(s)
 
-static void do_drawing(cairo_t *);
-
-cairo_t *cr = NULL;
 Leg *l1, *l2, *l3, *l4;
+volatile bool running = true;
 
-static gboolean window_expose_event (GtkWidget      *widget,
-        GdkEventExpose *event)
-{
-	cr = gdk_cairo_create (widget->window);
-	do_drawing(cr);
-
-	return FALSE;
+void SigHandler(int s){
+	if (s == 2)	//CTRL+C
+		running = false;
 }
 
 #define CENTER_X	200
 #define CENTER_Y	200
-
+/*
 static void do_drawing(cairo_t *cr)
 {
 	int i;
@@ -86,18 +79,7 @@ static void do_drawing(cairo_t *cr)
 	}
 	cairo_stroke(cr);
 
-	//draw circle indicating starting cart position
-//	cairo_set_source_rgb(cr, 0, 1, 1);
-//	cairo_arc(cr, CENTER_X + l1->getStartCartPos().p.x() * 100, CENTER_Y + l1->getStartCartPos().p.y() * 100, 5, 0, 2 * M_PI);
-//
-//	cairo_stroke(cr);
-
-	//draw circle indicating current cart position
-//	cairo_set_source_rgb(cr, 0, 0, 1);
-//	cairo_arc(cr, CENTER_X + l1->getCartPos().p.x() * 100, CENTER_Y + l1->getCartPos().p.y() * 100, 5, 0, 2 * M_PI);
-//
-//	cairo_stroke(cr);
-
+	cairo_set_source_rgb(cr, 0, 1, 0);
 	//draw current leg position
 	cairo_move_to(cr, CENTER_X + 100, CENTER_Y);
 	for (i = 0; i < l2->getOutFrameVector()->size(); i++) {
@@ -109,6 +91,7 @@ static void do_drawing(cairo_t *cr)
 	}
 	cairo_stroke(cr);
 
+	cairo_set_source_rgb(cr, 0, 0, 1);
 	//draw current leg position
 	cairo_move_to(cr, CENTER_X, CENTER_Y - 200);
 	for (i = 0; i < l3->getOutFrameVector()->size(); i++) {
@@ -120,6 +103,7 @@ static void do_drawing(cairo_t *cr)
 	}
 	cairo_stroke(cr);
 
+	cairo_set_source_rgb(cr, 0, 0, 0);
 	//draw current leg position
 	cairo_move_to(cr, CENTER_X + 100, CENTER_Y - 200);
 	for (i = 0; i < l4->getOutFrameVector()->size(); i++) {
@@ -132,39 +116,14 @@ static void do_drawing(cairo_t *cr)
 	cairo_stroke(cr);
 
 }
-
-gboolean timeout(gpointer data) {
-	l1->timeout(data);
-	l2->timeout(data);
-	l3->timeout(data);
-	l4->timeout(data);
-}
-
+*/
 int main( int   argc,
 		char *argv[] ) {
-	GtkWidget *window;
-	GtkWidget *darea;
-
-	gtk_init(&argc, &argv);
-
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-	darea = gtk_drawing_area_new();
-	gtk_container_add(GTK_CONTAINER(window), darea);
-
-	g_signal_connect(G_OBJECT(darea), "expose-event",
-			G_CALLBACK(window_expose_event), NULL);
-
-	g_signal_connect(window, "destroy",
-			G_CALLBACK(gtk_main_quit), NULL);
-
-	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
-	gtk_window_set_title(GTK_WINDOW(window), "RoboCat");
 
 	cout << "Hello RoboCat v" << STRINGIFY(ROBOCAT_VERSION_MAJOR) << "." << STRINGIFY(ROBOCAT_VERSION_MINOR) << endl;
 
 	cout << "Initializing servo controller" << endl;
+	cout << "Press >>ctrl+c<< to exit" << endl;
 
 	servoController *ctrl = new servoController();
 	servo *servos[16];
@@ -177,20 +136,23 @@ int main( int   argc,
 	delete ctrl;
 
 	l1 = new Leg();
+
 	l2 = new Leg();
-	l2->setStartIterations(50);
+	//l2->setStartIterations(50);
+
 	l3 = new Leg();
-	l3->setForth(false);
+	//l3->setForth(false);
+	
 	l4 = new Leg();
-	l4->setStartIterations(50);
-	l4->setForth(false);
+	//l4->setStartIterations(50);
+	//l4->setForth(false);
 
-	gtk_widget_show(darea);
-	g_timeout_add(50, timeout, window);
+	signal (SIGINT, SigHandler);
+	while(running) {
 
-	gtk_widget_show_all(window);
+	}
 
-	gtk_main();
+	cout<<"Exiting application..."<<endl;
 
 	delete l1;
 	delete l2;

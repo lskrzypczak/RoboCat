@@ -27,6 +27,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <pthread.h>
 
 using namespace std;
 using namespace KDL;
@@ -35,7 +36,12 @@ using namespace KDL;
  *
  */
 class Leg {
-
+public:
+	enum class MoveSpeed {
+		slow,
+		normal,
+		fast
+	};
 private:
 	vector<Frame> *p_out;
 	vector<Frame> *initial_p_out;
@@ -46,9 +52,12 @@ private:
 	KDL::Chain chain;
 	KDL::Frame cartpos, startCartPos;
 	ChainIkSolverVel_wdls *viksolver;
-	int iterations = 0;
-	bool forth = true;
-	bool forthMove = false;
+	bool p_moving = false;
+	std::vector<KDL::Frame> p_trajectory;
+	MoveSpeed p_speed;
+	pthread_t p_thread;
+
+	bool timeout();
 
 public:
 	Leg();
@@ -59,9 +68,8 @@ public:
 	KDL::Frame getCartPos() { return cartpos; }
 	KDL::Frame getStartCartPos() { return startCartPos; }
 
-	gboolean timeout(gpointer data);
-	void setStartIterations(int it) {iterations = it; }
-	void setForth(bool fo) { forth = fo; }
+	void go(std::vector<KDL::Frame> trajectory, MoveSpeed speed = MoveSpeed::normal );
+	void stop() { p_moving = false; }
 };
 
 #endif /* LEG_H_ */

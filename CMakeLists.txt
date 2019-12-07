@@ -127,8 +127,10 @@ include_directories(${LIBS_INC_PATH}/include/gtk-2.0)
 include_directories(${LIBS_DIR_PATH}/gtk-2.0/include)
 include_directories(${LIBS_DIR_PATH}/include/atk-1.0)
 include_directories(${LIBS_INC_PATH}/include/atk-1.0)
+include_directories(/usr/local/include)
 include_directories(${LIBS_INC_PATH}/include)
 include_directories(${LIBS_INC_PATH}/include/eigen3)
+include_directories(/usr/local/include/eigen3)
 
 message(STATUS "LIB_DIRS: " ${LIBS_DIR_PATH})
 
